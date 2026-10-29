@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Choice Clash — Would You Rather, Truth or Dare & Riddles</title>
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;600;700;800;900&family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fdf9fb; --card:#ffffff; --text:#0f172a; --muted:#64748b;
+  --accent:#bd3193; --accent-soft:rgba(189,49,147,.14);
+  --accent2:#0891b2; --accent2-soft:rgba(8,145,178,.14);
+  --border:rgba(15,23,42,.07);
+  --grad:linear-gradient(135deg,#bd3193 0%,#e0457a 45%,#0891b2 100%);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:'Red Hat Display','Cairo',system-ui,-apple-system,'Segoe UI',sans-serif;
+  background:var(--bg);color:var(--text);overflow:hidden;
+}
+.app{
+  max-width:480px;margin:0 auto;height:100%;position:relative;
+  display:flex;flex-direction:column;overflow:hidden;
+  background:
+    radial-gradient(120% 60% at 50% -10%, rgba(189,49,147,.10), transparent 60%),
+    radial-gradient(100% 50% at 100% 110%, rgba(8,145,178,.10), transparent 60%),
+    var(--bg);
+}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;padding:20px 20px 28px;overflow-y:auto;transition:transform .35s cubic-bezier(.4,0,.2,1),opacity .3s;}
+.screen.hidden{display:none}
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+html[dir="rtl"] .mirror{transform:scaleX(-1)}
+html[dir="rtl"] .brand h1{letter-spacing:0}
+
+.brand{text-align:center;margin-top:10px}
+.brand .logo{width:68px;height:68px;margin:0 auto 12px;border-radius:22px;background:var(--grad);display:flex;align-items:center;justify-content:center;box-shadow:0 10px 24px rgba(189,49,147,.35)}
+.brand h1{font-size:32px;font-weight:900;letter-spacing:-.5px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1.1}
+.brand p{color:var(--muted);margin-top:8px;font-size:14px;font-weight:600}
+.pill-row{display:flex;justify-content:center;gap:10px;margin-top:16px;flex-wrap:wrap}
+.pill-toggle{display:flex;background:var(--card);border:1px solid var(--border);border-radius:999px;padding:4px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.pill-toggle button{border:0;background:transparent;padding:8px 16px;border-radius:999px;font-family:inherit;font-weight:800;font-size:13px;color:var(--muted);cursor:pointer;transition:all .2s}
+.pill-toggle button.on{background:var(--accent);color:#fff;box-shadow:0 4px 12px rgba(189,49,147,.35)}
+.modes{margin-top:18px;display:flex;flex-direction:column;gap:12px}
+.mode-card{
+  display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--border);
+  border-radius:20px;padding:16px;cursor:pointer;transition:transform .15s,box-shadow .2s;
+  box-shadow:0 1px 3px rgba(0,0,0,.05);position:relative;overflow:hidden;
+}
+.mode-card:active{transform:scale(.97)}
+.mode-card .ic{width:50px;height:50px;flex:0 0 50px;border-radius:16px;display:flex;align-items:center;justify-content:center}
+.mode-card .ic.a{background:var(--accent-soft);color:var(--accent)}
+.mode-card .ic.b{background:var(--accent2-soft);color:var(--accent2)}
+.mode-card .ic.c{background:rgba(217,119,6,.12);color:#d97706}
+.mode-card h3{font-size:18px;font-weight:800}
+.mode-card p{font-size:12.5px;color:var(--muted);margin-top:2px;font-weight:600}
+.mode-card .chev{margin-left:auto;color:var(--muted);flex:0 0 auto}
+html[dir="rtl"] .mode-card .chev{margin-left:0;margin-right:auto}
+.home-actions{display:flex;gap:12px;margin-top:14px}
+.home-actions button{flex:1;padding:13px;border-radius:16px;border:1px solid var(--border);background:var(--card);font-family:inherit;font-weight:800;font-size:13.5px;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.home-actions button:active{transform:scale(.97)}
+.stats-line{text-align:center;color:var(--muted);font-size:12px;font-weight:600;margin-top:16px}
+.stats-line b{color:var(--accent)}
+
+.game-header{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex:0 0 auto}
+.icon-btn{width:40px;height:40px;border-radius:14px;border:1px solid var(--border);background:var(--card);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text);flex:0 0 40px}
+.icon-btn:active{transform:scale(.93)}
+.icon-btn.on{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+.mode-title{flex:1;text-align:center;min-width:0}
+.mode-title .kicker{font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)}
+.mode-title h2{font-size:17px;font-weight:800;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.counter{font-size:12.5px;font-weight:800;color:var(--accent);background:var(--accent-soft);padding:6px 11px;border-radius:999px;white-space:nowrap}
+
+.wyr-q{text-align:center;font-size:14px;font-weight:700;color:var(--muted);margin:4px 0 14px;text-transform:uppercase;letter-spacing:1px}
+.wyr-opts{position:relative;display:flex;flex-direction:column;gap:14px;flex:1;justify-content:center}
+.wyr-opt{
+  position:relative;border:2px solid var(--border);background:var(--card);border-radius:22px;
+  padding:24px 18px;cursor:pointer;min-height:120px;display:flex;align-items:center;justify-content:center;
+  text-align:center;font-size:18px;font-weight:800;line-height:1.35;overflow:hidden;transition:transform .15s,border-color .2s;
+}
+.wyr-opt:active{transform:scale(.98)}
+.wyr-opt.a{border-color:transparent;background:linear-gradient(135deg,#fff,#fff) padding-box, var(--grad) border-box}
+.wyr-opt .bar{position:absolute;left:0;top:0;bottom:0;width:0%;transition:width 1s cubic-bezier(.22,1,.36,1);z-index:0}
+.wyr-opt.a .bar{background:var(--accent-soft)}
+.wyr-opt.b .bar{background:var(--accent2-soft)}
+.wyr-opt .txt{position:relative;z-index:1}
+.wyr-opt .pct{position:absolute;right:14px;bottom:10px;font-size:20px;font-weight:900;z-index:1;opacity:0;transition:opacity .4s}
+html[dir="rtl"] .wyr-opt .pct{right:auto;left:14px}
+.wyr-opt.a .pct{color:var(--accent)}
+.wyr-opt.b .pct{color:var(--accent2)}
+.wyr-opt.voted{cursor:default}
+.wyr-opt.voted .pct{opacity:1}
+.or-badge{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:42px;height:42px;border-radius:50%;background:var(--text);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:11px;z-index:5;box-shadow:0 4px 12px rgba(0,0,0,.25)}
+.wyr-wrap{position:relative;flex:1;display:flex;flex-direction:column;justify-content:center}
+
+.td-buttons{display:flex;gap:14px;margin-bottom:16px;flex:0 0 auto}
+.td-buttons button{flex:1;padding:18px;border-radius:20px;border:0;font-family:inherit;font-size:17px;font-weight:900;color:#fff;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.15);transition:transform .15s}
+.td-buttons button:active{transform:scale(.96)}
+.td-buttons .truth{background:linear-gradient(135deg,#bd3193,#e0457a)}
+.td-buttons .dare{background:linear-gradient(135deg,#0891b2,#0ea5c9)}
+.flip-card{perspective:1200px;flex:1;min-height:220px}
+.flip-inner{position:relative;width:100%;height:100%;min-height:220px;transition:transform .6s cubic-bezier(.4,0,.2,1);transform-style:preserve-3d}
+.flip-card.flipped .flip-inner{transform:rotateY(180deg)}
+.flip-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:26px;background:var(--card);border:1px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.flip-face.back{transform:rotateY(180deg)}
+.flip-face .tag{font-size:10.5px;font-weight:900;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;padding:6px 14px;border-radius:999px}
+.flip-face .tag.t{background:var(--accent-soft);color:var(--accent)}
+.flip-face .tag.d{background:var(--accent2-soft);color:var(--accent2)}
+.flip-face .tag.r{background:rgba(217,119,6,.14);color:#d97706}
+.flip-face .content{font-size:20px;font-weight:800;line-height:1.4}
+.flip-face .hint{font-size:14.5px;color:var(--muted);font-weight:600;margin-top:14px;font-style:italic}
+.flip-face .answer{font-size:23px;font-weight:900;color:var(--accent);margin-top:10px}
+.flip-face .placeholder{color:var(--muted);font-weight:600;font-size:15px;padding:0 20px;line-height:1.5}
+
+.game-actions{display:flex;gap:12px;margin-top:16px;flex:0 0 auto}
+.btn{flex:1;padding:15px;border-radius:18px;border:0;font-family:inherit;font-weight:800;font-size:14px;cursor:pointer;transition:transform .15s;display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap}
+.btn:active{transform:scale(.96)}
+.btn.primary{background:var(--accent);color:#fff;box-shadow:0 8px 20px rgba(189,49,147,.35)}
+.btn.secondary{background:var(--card);color:var(--text);border:1px solid var(--border)}
+.btn:disabled{opacity:.4;cursor:default}
+
+.overlay{position:absolute;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(6px);z-index:50;display:flex;align-items:center;justify-content:center;padding:24px;animation:fadeIn .25s}
+.overlay.hidden{display:none}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.sheet{background:var(--card);border-radius:26px;padding:26px 22px;width:100%;max-width:380px;max-height:85%;overflow-y:auto;animation:pop .3s cubic-bezier(.34,1.56,.64,1)}
+@keyframes pop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.sheet h3{font-size:21px;font-weight:900;text-align:center}
+.sheet .sub{text-align:center;color:var(--muted);font-size:13.5px;margin-top:6px;font-weight:500}
+.big-stat{display:flex;justify-content:center;gap:22px;margin:20px 0}
+.big-stat div{text-align:center}
+.big-stat .n{font-size:32px;font-weight:900;color:var(--accent)}
+.big-stat .l{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+.sheet .btn{margin-top:10px}
+.saved-item{display:flex;gap:10px;align-items:flex-start;padding:11px;border:1px solid var(--border);border-radius:14px;margin-top:10px;background:var(--bg)}
+.saved-item .badge{font-size:9.5px;font-weight:900;padding:4px 7px;border-radius:999px;flex:0 0 auto;text-transform:uppercase;letter-spacing:.5px;margin-top:1px}
+.saved-item .badge.wyr{background:var(--accent-soft);color:var(--accent)}
+.saved-item .badge.td{background:var(--accent2-soft);color:var(--accent2)}
+.saved-item .badge.rid{background:rgba(217,119,6,.14);color:#d97706}
+.saved-item p{font-size:13px;font-weight:600;line-height:1.45;flex:1}
+.saved-item .del{border:0;background:transparent;color:var(--muted);cursor:pointer;flex:0 0 auto;padding:4px}
+.empty{text-align:center;color:var(--muted);padding:26px 10px;font-weight:600;font-size:13.5px;line-height:1.5}
+.toast{position:absolute;left:50%;bottom:90px;transform:translateX(-50%) translateY(20px);background:var(--text);color:#fff;padding:10px 20px;border-radius:999px;font-size:13px;font-weight:700;opacity:0;transition:all .3s;z-index:99;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <section id="screen-home" class="screen">
+    <div class="scroll" style="display:flex;flex-direction:column;justify-content:center;min-height:100%">
+      <div class="brand">
+        <div class="logo">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M7 8 3 12l4 4"/><path d="m17 8 4 4-4 4"/></svg>
+        </div>
+        <h1>Choice Clash</h1>
+        <p id="tagline"></p>
+      </div>
+
+      <div class="pill-row">
+        <div class="pill-toggle" id="langToggle">
+          <button data-lang="en">EN</button>
+          <button data-lang="fr">FR</button>
+          <button data-lang="ar">عربي</button>
+        </div>
+        <div class="pill-toggle" id="levelToggle">
+          <button data-level="0" class="on" id="lblClean">Clean</button>
+          <button data-level="1" id="lblParty">Party</button>
+        </div>
+      </div>
+
+      <div class="modes">
+        <div class="mode-card" data-mode="wyr">
+          <div class="ic a"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M21 3l-7.5 7.5"/><path d="M3 3l7.5 7.5"/><path d="M16 21h5v-5"/><path d="M8 21H3v-5"/><path d="M21 21l-7.5-7.5"/><path d="M3 21l7.5-7.5"/></svg></div>
+          <div><h3 id="lblWYR">Would You Rather</h3><p id="cnt-wyr">—</p></div>
+          <svg class="chev mirror" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </div>
+        <div class="mode-card" data-mode="td">
+          <div class="ic b"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></div>
+          <div><h3 id="lblTD">Truth or Dare</h3><p id="cnt-td">—</p></div>
+          <svg class="chev mirror" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </div>
+        <div class="mode-card" data-mode="rid">
+          <div class="ic c"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1V17h6v-.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2Z"/></svg></div>
+          <div><h3 id="lblRID">Riddles</h3><p id="cnt-rid">—</p></div>
+          <svg class="chev mirror" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </div>
+      </div>
+
+      <div class="home-actions">
+        <button id="btnSurprise"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="m15 15 6 6"/><path d="M4 4l5 5"/></svg> <span id="lblSurprise">Surprise Me</span></button>
+        <button id="btnSaved"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg> <span id="lblSaved">Saved</span> <span id="favCount" style="color:var(--accent)">0</span></button>
+      </div>
+      <div class="stats-line"><b id="statAnswered">0</b> <span id="lblAnswered">answered</span> &middot; <b id="statBest">0</b> <span id="lblBest">best streak</span></div>
+    </div>
+  </section>
+
+  <section id="screen-game" class="screen hidden">
+    <div class="game-header">
+      <button class="icon-btn" id="btnHome" aria-label="Home"><svg class="mirror" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+      <div class="mode-title">
+        <div class="kicker" id="modeKicker">Mode</div>
+        <h2 id="modeTitle">Would You Rather</h2>
+      </div>
+      <div class="counter" id="counter">1</div>
+      <button class="icon-btn" id="btnDone" aria-label="Finish"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></button>
+      <button class="icon-btn" id="btnFav" aria-label="Save"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></button>
+      <button class="icon-btn" id="btnShare" aria-label="Share"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg></button>
+    </div>
+    <div class="scroll" id="gameBody" style="display:flex;flex-direction:column;flex:1;min-height:0"></div>
+    <div class="game-actions" id="gameActions"></div>
+  </section>
+
+  <div id="overlay-summary" class="overlay hidden">
+    <div class="sheet">
+      <h3 id="sumTitle">Session Complete</h3>
+      <p class="sub" id="sumSub">Nice run! Here is how you did.</p>
+      <div class="big-stat">
+        <div><div class="n" id="sumAnswered">0</div><div class="l" id="sumL1">Answered</div></div>
+        <div><div class="n" id="sumStreak">0</div><div class="l" id="sumL2">Streak</div></div>
+        <div><div class="n" id="sumSaved">0</div><div class="l" id="sumL3">Saved</div></div>
+      </div>
+      <button class="btn primary" id="btnAgain"><svg class="mirror" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> <span id="lblAgain">Play Again</span></button>
+      <button class="btn secondary" id="btnSumHome">Back to Home</button>
+    </div>
+  </div>
+
+  <div id="overlay-saved" class="overlay hidden">
+    <div class="sheet">
+      <h3 id="savedTitle">Saved Cards</h3>
+      <p class="sub" id="savedSub">Your favorite questions, all in one place.</p>
+      <div id="savedList"></div>
+      <button class="btn secondary" id="btnSavedClose">Close</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Copied</div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+var UI = {
+  en:{ tagline:"Would You Rather · Truth or Dare · Riddles", clean:"Clean", party:"Party", wyr:"Would You Rather", td:"Truth or Dare", rid:"Riddles", surprise:"Surprise Me", saved:"Saved", answered:"answered", best:"best streak", wyrQ:"Would you rather...", truth:"TRUTH", dare:"DARE", or:"OR", next:"Next", hint:"Hint", hintShown:"Hint shown", reveal:"Reveal Answer", doneNext:"Done · Next", riddle:"Riddle", answer:"Answer", tdPlaceholder:"Tap TRUTH or DARE above to reveal your challenge", sessionComplete:"Session Complete", sessionSub:"Nice run! Here is how you did.", lAnswered:"Answered", lStreak:"Streak", lSaved:"Saved", playAgain:"Play Again", backHome:"Back to Home", savedTitle:"Saved Cards", savedSub:"Your favorite questions, all in one place.", savedEmpty:"Nothing saved yet. Tap the heart icon on any card to save it.", close:"Close", copied:"Copied to clipboard", savedToast:"Saved!", removedToast:"Removed from saved", copyFailed:"Copy failed", pickSide:"Pick a side", chooseChallenge:"Choose your challenge", canYouSolve:"Can you solve it?", questions:"questions", prompts:"prompts", riddles:"riddles" },
+  fr:{ tagline:"Tu préfères · Action ou Vérité · Devinettes", clean:"Soft", party:"Festif", wyr:"Tu préfères", td:"Action ou Vérité", rid:"Devinettes", surprise:"Surprise-moi", saved:"Enregistrés", answered:"répondues", best:"meilleure série", wyrQ:"Tu préfères...", truth:"VÉRITÉ", dare:"ACTION", or:"OU", next:"Suivant", hint:"Indice", hintShown:"Indice affiché", reveal:"Révéler la réponse", doneNext:"Fait · Suivant", riddle:"Devinette", answer:"Réponse", tdPlaceholder:"Touche VÉRITÉ ou ACTION pour révéler ton défi", sessionComplete:"Session terminée", sessionSub:"Bien joué ! Voici tes résultats.", lAnswered:"Répondu", lStreak:"Série", lSaved:"Enreg.", playAgain:"Rejouer", backHome:"Retour à l'accueil", savedTitle:"Cartes enregistrées", savedSub:"Tes questions préférées, au même endroit.", savedEmpty:"Rien d'enregistré. Touche le cœur sur une carte.", close:"Fermer", copied:"Copié dans le presse-papiers", savedToast:"Enregistré !", removedToast:"Retiré des enregistrés", copyFailed:"Copie échouée", pickSide:"Choisis un camp", chooseChallenge:"Choisis ton défi", canYouSolve:"Saurez-vous résoudre ?", questions:"questions", prompts:"défis", riddles:"devinettes" },
+  ar:{ tagline:"ماذا تختار · حق أم تحدي · ألغاز", clean:"عائلي", party:"حفلة", wyr:"ماذا تفضل", td:"حق أم تحدي", rid:"ألغاز", surprise:"مفاجأة", saved:"المحفوظات", answered:"مُجاب", best:"أفضل سلسلة", wyrQ:"ماذا تفضل...", truth:"حق", dare:"تحدي", or:"أو", next:"التالي", hint:"تلميح", hintShown:"تم إظهار التلميح", reveal:"إظهار الإجابة", doneNext:"تم · التالي", riddle:"لغز", answer:"الإجابة", tdPlaceholder:"اضغط على حق أو تحدي لكشف التحدي", sessionComplete:"انتهت الجلسة", sessionSub:"أحسنت! إليك نتائجك.", lAnswered:"مُجاب", lStreak:"سلسلة", lSaved:"محفوظ", playAgain:"العب مرة أخرى", backHome:"العودة للرئيسية", savedTitle:"البطاقات المحفوظة", savedSub:"أسئلتك المفضلة في مكان واحد.", savedEmpty:"لا يوجد محفوظات بعد. اضغط على أيقونة القلب على أي بطاقة.", close:"إغلاق", copied:"تم النسخ", savedToast:"تم الحفظ!", removedToast:"تمت الإزالة", copyFailed:"فشل النسخ", pickSide:"اختر جانباً", chooseChallenge:"اختر تحديك", canYouSolve:"هل تستطيع الحل؟", questions:"سؤال", prompts:"تحدي", riddles:"لغز" }
+};
+function t(k){ return (UI[S.lang] && UI[S.lang][k]) || UI.en[k]; }
+
+var AD = { interstitialEvery: 6, sinceLast: 0 };
+function maybeShowInterstitial(){
+  AD.sinceLast++;
+  if(AD.sinceLast >= AD.interstitialEvery){
+    AD.sinceLast = 0;
+    try{ if(window.Android && typeof Android.showInterstitial === "function"){ Android.showInterstitial(); } }catch(e){}
+  }
+}
+var __rewardCb = null;
+function showRewarded(cb){
+  __rewardCb = cb;
+  try{
+    if(window.Android && typeof Android.showRewardedAd === "function"){ Android.showRewardedAd(); return; }
+  }catch(e){}
+  cb();
+}
+window.onRewardedAdGranted = function(){ if(__rewardCb){ var c=__rewardCb; __rewardCb=null; c(); } };
+
+var WYR = [
+  {en:["Have the ability to fly","be invisible forever"], fr:["Pouvoir voler","être invisible pour toujours"], ar:["أن تتمكن من الطيران","أن تكون خفيًا إلى الأبد"]},
+  {en:["Live without music","live without movies and TV"], fr:["Vivre sans musique","vivre sans films ni télé"], ar:["العيش بدون موسيقى","العيش بدون أفلام وتلفزيون"]},
+  {en:["Always be 10 minutes late","always be 20 minutes early"], fr:["Être toujours en retard de 10 min","être toujours en avance de 20 min"], ar:["تتأخر دائمًا بعشر دقائق","تتقدم دائمًا بعشرين دقيقة"]},
+  {en:["Have a rewind button for your life","have a pause button"], fr:["Avoir un bouton retour pour ta vie","avoir un bouton pause"], ar:["زر ترجيع لحياتك","زر إيقاف مؤقت"]},
+  {en:["Eat only spicy food","eat only sweet food for a year"], fr:["Ne manger que du pimenté","ne manger que du sucré pendant un an"], ar:["تأكل فقط الحار","تأكل فقط الحلوى لمدة عام"]},
+  {en:["Know how you will die","know exactly when you will die"], fr:["Savoir comment tu mourras","savoir exactement quand tu mourras"], ar:["تعرف كيف ستموت","تعرف بالضبط متى ستموت"]},
+  {en:["Talk to any animal","speak every language fluently"], fr:["Parler à n'importe quel animal","parler couramment toutes les langues"], ar:["تتحدث مع أي حيوان","تتحدث كل اللغات بطلاقة"]},
+  {en:["Live in space","live under the sea"], fr:["Vivre dans l'espace","vivre sous la mer"], ar:["العيش في الفضاء","العيش تحت البحر"]},
+  {en:["Never use social media again","never watch streaming again"], fr:["Ne plus jamais utiliser les réseaux","ne plus jamais regarder de streaming"], ar:["لا تستخدم التواصل أبدًا","لا تشاهد البث أبدًا"]},
+  {en:["Free travel for life","free food for life"], fr:["Voyager gratuitement à vie","manger gratuitement à vie"], ar:["سفر مجاني مدى الحياة","طعام مجاني مدى الحياة"]},
+  {en:["Be the funniest person everywhere","be the smartest person everywhere"], fr:["Être le plus drôle partout","être le plus intelligent partout"], ar:["أمرح شخص في كل مكان","أذكى شخص في كل مكان"]},
+  {en:["Relive one perfect day","erase one bad day completely"], fr:["Revivre une journée parfaite","effacer une mauvaise journée"], ar:["تعيد يومًا مثاليًا","تمحو يومًا سيئًا بالكامل"]},
+  {en:["Have a personal chef","have a personal driver forever"], fr:["Avoir un chef personnel","avoir un chauffeur à vie"], ar:["طباخ شخصي","سائق شخصي مدى الحياة"]},
+  {en:["Be famous for one year","be rich but unknown forever"], fr:["Être célèbre un an","être riche mais inconnu toujours"], ar:["تكون مشهورًا عامًا","غني لكن مجهولًا للأبد"]},
+  {en:["Never feel cold again","never feel hot again"], fr:["Ne plus jamais avoir froid","ne plus jamais avoir chaud"], ar:["لا تشعر بالبرد مرة أخرى","لا تشعر بالحر مرة أخرى"]},
+  {en:["Read minds","see 10 minutes into the future"], fr:["Lire les pensées","voir 10 min dans le futur"], ar:["تقرأ الأفكار","ترى عشر دقائق من المستقبل"]},
+  {en:["Lose all your photos","lose all your messages"], fr:["Perdre toutes tes photos","perdre tous tes messages"], ar:["تفقد كل صورك","تفقد كل رسائلك"]},
+  {en:["Breathe underwater","run at 200 km/h"], fr:["Respirer sous l'eau","courir à 200 km/h"], ar:["تتنفس تحت الماء","تجري بسرعة 200 كم/ساعة"]},
+  {en:["Live without your phone","live without your computer"], fr:["Vivre sans téléphone","vivre sans ordinateur"], ar:["العيش بدون هاتف","العيش بدون حاسوب"]},
+  {en:["Sing like a star","dance like a professional"], fr:["Chanter comme une star","danser comme un pro"], ar:["تغني كنجم","ترقص كمحترف"]},
+  {en:["Time-travel to the past","time-travel to the future"], fr:["Voyager dans le passé","voyager dans le futur"], ar:["السفر للماضي","السفر للمستقبل"]},
+  {en:["Be a hero with no powers","be a villain with every power"], fr:["Être un héros sans pouvoirs","être un méchant avec tous les pouvoirs"], ar:["بطل بلا قوى","شرير بكل القوى"]},
+  {en:["Always have Wi-Fi","always have full battery"], fr:["Avoir toujours le Wi-Fi","avoir toujours la batterie pleine"], ar:["واي فاي دائم","بطارية ممتلئة دائمًا"]},
+  {en:["Win a Nobel Prize","win an Olympic gold medal"], fr:["Gagner un prix Nobel","gagner une médaille d'or olympique"], ar:["تفوز بجائزة نوبل","تفوز بميدالية ذهبية أولمبية"]},
+  {en:["Endless money but no friends","amazing friends but little money"], fr:["Une fortune mais aucun ami","des amis géniaux mais peu d'argent"], ar:["مال لا ينتهي بلا أصدقاء","أصدقاء رائعون ومال قليل"]},
+  {en:["Talk to your future self","talk to your 10-year-old self"], fr:["Parler à ton toi futur","parler à ton toi de 10 ans"], ar:["تتحدث مع نفسك المستقبلية","مع نفسك في العاشرة"]},
+  {en:["Never sleep but never be tired","sleep 12 hours every night"], fr:["Ne plus dormir mais sans être fatigué","dormir 12h chaque nuit"], ar:["لا تنام أبدًا ولا تتعب","تنام 12 ساعة كل ليلة"]},
+  {en:["Be a character in your favorite movie","direct your own movie"], fr:["Être un personnage de ton film préféré","réaliser ton propre film"], ar:["تكون شخصية في فيلمك المفضل","تخرج فيلمك الخاص"]},
+  {en:["Have a pet dragon","have a pet unicorn"], fr:["Avoir un dragon de compagnie","avoir une licorne de compagnie"], ar:["تنين أليف","يونيكورن أليف"]},
+  {en:["Know every language","master every instrument"], fr:["Connaître toutes les langues","maîtriser tous les instruments"], ar:["تعرف كل اللغات","تعزف كل الآلات"]},
+  {en:["Live in a castle","live on a private island"], fr:["Vivre dans un château","vivre sur une île privée"], ar:["العيش في قلعة","العيش في جزيرة خاصة"]},
+  {en:["Be lucky in everything","be brilliant at everything"], fr:["Être chanceux en tout","être brillant en tout"], ar:["محظوظ في كل شيء","عبقري في كل شيء"]},
+  {en:["Never eat chocolate again","never eat pizza again"], fr:["Ne plus jamais manger de chocolat","ne plus jamais manger de pizza"], ar:["لا تأكل الشوكولاتة أبدًا","لا تأكل البيتزا أبدًا"]},
+  {en:["Have super strength","have super speed"], fr:["Avoir une super force","avoir une super vitesse"], ar:["قوة خارقة","سرعة خارقة"]},
+  {en:["Be remembered after you die","live forever but be forgotten"], fr:["Être rappelé après ta mort","vivre éternellement mais oublié"], ar:["يُذكرك الناس بعد موتك","تعيش للأبد وتُنسى"]},
+  {en:["Have a photographic memory","never feel fear again"], fr:["Avoir une mémoire photographique","ne plus jamais avoir peur"], ar:["ذاكرة فوتوغرافية","لا تشعر بالخوف أبدًا"]},
+  {en:["Control fire","control water"], fr:["Contrôler le feu","contrôler l'eau"], ar:["التحكم بالنار","التحكم بالماء"]},
+  {en:["Be invisible in crowds","be the center of attention"], fr:["Être invisible dans la foule","être le centre de l'attention"], ar:["خفي في الحشود","مركز الاهتمام"]},
+  {en:["Work 4 days for less pay","work 6 days for double pay"], fr:["Travailler 4j/semaine pour moins","travailler 6j pour le double"], ar:["تعمل 4 أيام براتب أقل","تعمل 6 أيام براتب مضاعف"]},
+  {en:["Have a clone of yourself","be able to teleport"], fr:["Avoir un clone de toi-même","pouvoir te téléporter"], ar:["نسخة طبق الأصل منك","القدرة على الانتقال الفوري"]},
+  {en:["Always detect lies","always lie perfectly"], fr:["Toujours détecter les mensonges","toujours mentir parfaitement"], ar:["تكشف الكذب دائمًا","تكذب ببراعة تامة"]},
+  {en:["Endless mobile data","endless storage"], fr:["Données mobiles illimitées","stockage illimité"], ar:["إنترنت محمول غير محدود","سعة تخزين غير محدودة"]},
+  {en:["Be a great painter","be a great writer"], fr:["Être un grand peintre","être un grand écrivain"], ar:["رسام عظيم","كاتب عظيم"]},
+  {en:["Live without coffee","live without tea"], fr:["Vivre sans café","vivre sans thé"], ar:["العيش بدون قهوة","العيش بدون شاي"]},
+  {en:["Heal others","heal yourself instantly"], fr:["Guérir les autres","te guérir instantanément"], ar:["تشفي الآخرين","تشفي نفسك فورًا"]},
+  {en:["Discover a new planet","invent something everyone uses"], fr:["Découvrir une planète","inventer un objet utile à tous"], ar:["تكتشف كوكبًا جديدًا","تخترع شيئًا يستخدمه الجميع"]},
+  {en:["Have a perfect family","have a perfect career"], fr:["Avoir une famille parfaite","avoir une carrière parfaite"], ar:["عائلة مثالية","مسيرة مهنية مثالية"]},
+  {en:["Never argue again","never feel sad again"], fr:["Ne plus jamais te disputer","ne plus jamais être triste"], ar:["لا تتشاجر أبدًا","لا تشعر بالحزن أبدًا"]}
+];
+
+var TRUTH = [
+  {en:"What is your most embarrassing childhood memory?",fr:"Quel est ton souvenir d'enfance le plus gênant ?",ar:"ما أكثر ذكرى محرجة من طفولتك؟",l:0},
+  {en:"What secret talent do you have that almost nobody knows?",fr:"Quel talent secret as-tu que presque personne ne connaît ?",ar:"ما موهبة سرية لديك لا يعرفها أحد تقريبًا؟",l:0},
+  {en:"What was the last thing you searched on your phone?",fr:"Quelle est la dernière chose cherchée sur ton téléphone ?",ar:"ما آخر شيء بحثت عنه على هاتفك؟",l:0},
+  {en:"Who was your very first crush?",fr:"Qui a été ton tout premier amour de jeunesse ?",ar:"من كان أول إعجاب عاطفي لك؟",l:0},
+  {en:"What lie did you tell your parents and never get caught?",fr:"Quel mensonge as-tu dit à tes parents sans être pris ?",ar:"ما كذبة قلتها لوالديك ولم يكتشفوك؟",l:0},
+  {en:"If you could swap lives with anyone for a day, who?",fr:"Si tu pouvais échanger ta vie un jour, avec qui ?",ar:"لو استطعت تبديل حياتك بيوم واحد، فمن؟",l:0},
+  {en:"What is the weirdest dream you can remember?",fr:"Quel est le rêve le plus bizarre dont tu te souviens ?",ar:"ما أغرب حلم تتذكره؟",l:0},
+  {en:"What are you completely obsessed with right now?",fr:"De quoi es-tu complètement obsédé en ce moment ?",ar:"بما أنت مهووس تمامًا الآن؟",l:0},
+  {en:"Which app do you open the most on your phone?",fr:"Quelle application ouvres-tu le plus ?",ar:"ما أكثر تطبيق تفتحه على هاتفك؟",l:0},
+  {en:"What fear do you have that most people don't know?",fr:"De quoi as-tu peur sans que la plupart le sachent ?",ar:"ما خوف لديك لا يعرفه معظم الناس؟",l:0},
+  {en:"What is the most childish thing you still do?",fr:"Quelle est la chose la plus enfantine que tu fasses encore ?",ar:"ما أكثر شيء طفولي ما زلت تفعله؟",l:0},
+  {en:"If you could change one thing about yourself, what?",fr:"Si tu pouvais changer une chose chez toi, laquelle ?",ar:"لو استطعت تغيير شيئًا في نفسك، فما هو؟",l:0},
+  {en:"What is the worst gift you have ever received?",fr:"Quel est le pire cadeau que tu aies reçu ?",ar:"ما أسوأ هدية تلقيتها؟",l:0},
+  {en:"Have you ever faked sickness to skip something?",fr:"As-tu déjà fait semblant d'être malade ? Pourquoi ?",ar:"هل تظاهرت بالمرض لتهيّب شيئًا؟ ما كان؟",l:0},
+  {en:"What song do you secretly love but would never admit?",fr:"Quelle chanson aimes-tu en secret sans l'admettre ?",ar:"ما أغنية تحبها سرًا لكن لن تعترف بها؟",l:1},
+  {en:"What was the biggest trouble you got in at school?",fr:"Quelle a été ta plus grande punition à l'école ?",ar:"ما أكبر مشكلة وقعت فيها في المدرسة؟",l:0},
+  {en:"What do you do when you think nobody is watching?",fr:"Que fais-tu quand tu penses que personne ne te regarde ?",ar:"ماذا تفعل عندما تظن أن لا أحد يراك؟",l:1},
+  {en:"If you had to delete one app forever, which?",fr:"Si tu devais supprimer une appli pour toujours, laquelle ?",ar:"لو اضطررت لحذف تطبيق واحد للأبد، فأيه؟",l:0},
+  {en:"What is your most irrational fear?",fr:"Quelle est ta peur la plus irrationnelle ?",ar:"ما أكثر خوف غير منطقي لديك؟",l:0},
+  {en:"Who in this room do you trust the most, and why?",fr:"Qui dans cette pièce fais-tu le plus confiance ?",ar:"من أكثر من تثق به في هذه الغرفة، ولماذا؟",l:1},
+  {en:"What have you never told anyone in this room?",fr:"Quoi n'as-tu jamais dit à personne ici ?",ar:"ما شيء لم تخبر به أحدًا في هذه الغرفة؟",l:1},
+  {en:"What was your worst first impression of someone here?",fr:"Quelle a été ta pire première impression ici ?",ar:"ما أسوأ انطباع أول كان لك عن أحد هنا؟",l:1},
+  {en:"If you could read one person's mind now, whose?",fr:"Si tu pouvais lire une pensée maintenant, dont ?",ar:"لو استطعت قراءة تفكير شخص الآن، فمن؟",l:1},
+  {en:"What is the longest you've gone without showering?",fr:"Quelle est ta plus longue période sans douche ?",ar:"ما أطول فترة مررت بها دون استحمام؟",l:1},
+  {en:"What is a weird habit you have while eating?",fr:"Quelle est ton habitude bizarre en mangeant ?",ar:"ما عادة غريبة لديك أثناء الأكل؟",l:0},
+  {en:"What childhood nickname did you hate?",fr:"Quel surnom d'enfant détestais-tu ?",ar:"ما لقب كرهته في طفولتك؟",l:0},
+  {en:"What is the most expensive thing you ever broke?",fr:"Quelle est la chose la plus chère que tu aies cassée ?",ar:"ما أغلى شيء كسرته على الإطلاق؟",l:0},
+  {en:"If you had to marry someone in this room, who?",fr:"Si tu devais épouser quelqu'un ici, qui ?",ar:"لو اضطرت للزواج من أحد في هذه الغرفة، فمن؟",l:1},
+  {en:"What is the dumbest thing you've done on a dare?",fr:"Quelle est la chose la plus stupide faite par défi ?",ar:"ما أغبى شيء فعلته بسبب تحدٍ؟",l:1},
+  {en:"What goal have you never told anyone about?",fr:"Quel objectif n'as-tu jamais confié à personne ?",ar:"ما هدف لم تخبر به أحدًا من قبل؟",l:0}
+];
+
+var DARE = [
+  {en:"Do your best celebrity impression until guessed.",fr:"Imite une célébrité jusqu'à ce qu'on devine.",ar:"قلد مشهورًا حتى يخمن أحد من هو.",l:0},
+  {en:"Sing the chorus of your favorite song out loud now.",fr:"Chante le refrain de ta chanson préférée à voix haute.",ar:"غنِ جوقة أغنيتك المفضلة بصوت عالٍ الآن.",l:0},
+  {en:"Speak in a funny accent for the next 3 rounds.",fr:"Parle avec un drôle d'accent pendant 3 tours.",ar:"تحدث بلهجة مضحكة لثلاث جولات.",l:0},
+  {en:"Do 10 jumping jacks while naming 5 animals.",fr:"Fais 10 jumping jacks en nommant 5 animaux.",ar:"افعل 10 قفزات واذكر 5 حيوانات بصوت عالٍ.",l:0},
+  {en:"Try to lick your elbow while everyone watches.",fr:"Essaie de lécher ton coude sous les yeux de tous.",ar:"حاول أن تلعق مرفقك وكل شخص يشاهدك.",l:0},
+  {en:"Do a 30-second dance with no music.",fr:"Danse 30 secondes sans musique.",ar:"ارقص 30 ثانية بدون موسيقى.",l:0},
+  {en:"Keep your eyes closed until your next turn.",fr:"Garde les yeux fermés jusqu'à ton prochain tour.",ar:"أبقِ عينيك مغلقتين حتى دورك القادم.",l:0},
+  {en:"Give 5 genuine compliments to the person on your left.",fr:"Fais 5 compliments sincères à la personne à ta gauche.",ar:"قل 5 إطراءات صادقة لمن بيسارك.",l:0},
+  {en:"Talk without using the letter A/E for 1 minute.",fr:"Parle sans utiliser la lettre « E » pendant 1 min.",ar:"تحدث دون استخدام حرف الألف لمدة دقيقة.",l:1},
+  {en:"Let another player send a harmless text from your phone.",fr:"Laisse un joueur envoyer un message anodin depuis ton tel.",ar:"دع لاعبًا يرسل رسالة بريئة من هاتفك.",l:1},
+  {en:"Text a friend 'I know what you did' — no explanation.",fr:"Envoie « Je sais ce que tu as fait » à un ami.",ar:"أرسل لصديق: «أعرف ما فعلته» دون شرح.",l:1},
+  {en:"Post a silly selfie to your story (optional).",fr:"Publie un selfie ridicule dans ta story (facultatif).",ar:"انشر صورة مضحكة في ستوريك (اختياري).",l:1},
+  {en:"Imitate an animal until someone guesses it.",fr:"Imite un animal jusqu'à ce qu'on devine.",ar:"قلد حيوانًا حتى يخمن أحد ما هو.",l:0},
+  {en:"Do your best robot walk across the room.",fr:"Marche comme un robot de l'autre côté de la pièce.",ar:"امشِ مشية الروبوت عبر الغرفة.",l:0},
+  {en:"Hold your breath as long as you can (stop if uneasy).",fr:"Retiens ta respiration le plus longtemps possible.",ar:"امسك أنفاسك أطول وقت (توقف إن شعرت بعدم الراحة).",l:0},
+  {en:"Say the alphabet backwards as fast as you can.",fr:"Dis l'alphabet à l'envers le plus vite possible.",ar:"قل الحروف الأبجدية بالعكس بأسرع ما يمكن.",l:0},
+  {en:"Let everyone see the last photo on your phone.",fr:"Laisse tout le monde voir ta dernière photo.",ar:"دع الجميع يرى آخر صورة على هاتفك.",l:1},
+  {en:"Act like a robot for the next 2 minutes.",fr:"Agis comme un robot pendant 2 minutes.",ar:"تصرف كروبوت لمدة دقيقتين.",l:0},
+  {en:"Tell jokes until someone laughs.",fr:"Raconte des blagues jusqu'à ce que quelqu'un rie.",ar:"اروي نكتًا واستمر حتى يضحك أحد.",l:0},
+  {en:"Wear socks on your hands for the next round.",fr:"Mets des chaussettes sur les mains au prochain tour.",ar:"ارتدِ الجوارب على يديك في الجولة القادمة.",l:0},
+  {en:"Do 5 squats while counting in a foreign language.",fr:"Fais 5 squats en comptant en langue étrangère.",ar:"افعل 5 قرفصاء وأنت تعد بلغة أجنبية.",l:0},
+  {en:"Hum your favorite song and let others guess it.",fr:"Murmure ta chanson et laisse les autres deviner.",ar:"همهم أغنيتك ودع الآخرين يخمنونها.",l:0},
+  {en:"Speak only in questions for the next 2 minutes.",fr:"Ne parle que par questions pendant 2 minutes.",ar:"تحدث فقط بالأسئلة لمدة دقيقتين.",l:1},
+  {en:"Let the group choose your next profile picture.",fr:"Laisse le groupe choisir ta prochaine photo de profil.",ar:"دع المجموعة تختار صورتك الشخصية القادمة.",l:1},
+  {en:"Balance on one foot 30 seconds while telling a story.",fr:"Tiens-toi sur un pied 30s en racontant une histoire.",ar:"قف على رجل واحدة 30 ثانية وأنت تحكي قصة.",l:0},
+  {en:"Do your best evil laugh, then keep a straight face.",fr:"Fais ton rire de méchant puis reste sérieux.",ar:"اضحك ضحكة شريرة ثم أبقِ وجهًا جادًا.",l:0},
+  {en:"Pretend to be a TV news anchor reporting on this room.",fr:"Fais le présentateur TV qui couvre cette pièce.",ar:"تظاهر أنك مذيع أخبار يغطي هذه الغرفة.",l:0},
+  {en:"Eat a spoonful of plain condiment (only if safe & available).",fr:"Mange une cuillère de condiment (si sûr et dispo).",ar:"كل ملعقة توابل خام (فقط إن كان آمنًا ومتاحًا).",l:1},
+  {en:"Call a friend and sing Happy Birthday (even if not their day).",fr:"Appelle un ami et chante « Joyeux anniversaire ».",ar:"اتصل بصديق وغنِ له عيد ميلاد سعيد.",l:1},
+  {en:"Let someone style your hair for the rest of the game.",fr:"Laisse quelqu'un coiffer tes cheveux jusqu'à la fin.",ar:"دع أحدًا يصفّف شعرك لبقية اللعبة.",l:1}
+];
+
+var RIDDLES = [
+  {q:{en:"What has keys but cannot open a single lock?",fr:"Qu'est-ce qui a des touches mais n'ouvre aucun cadenas ?",ar:"ما الشيء الذي له مفاتيح لكنه لا يفتح قفلًا؟"},h:{en:"It makes music.",fr:"Il produit de la musique.",ar:"يصدر موسيقى."},a:{en:"A piano",fr:"Un piano",ar:"البيانو"}},
+  {q:{en:"I'm not alive but I grow; I need air but have no lungs; water kills me. What am I?",fr:"Je ne suis pas vivant mais je grandis ; j'ai besoin d'air ; l'eau me tue. Qui suis-je ?",ar:"لست حيًا لكنني أنمو؛ أحتاج هواءًا وليس لدي رئتان؛ الماء يقتلني. فمن أنا؟"},h:{en:"It burns.",fr:"Ça brûle.",ar:"يحترق."},a:{en:"Fire",fr:"Le feu",ar:"النار"}},
+  {q:{en:"What gets wetter the more it dries?",fr:"Qu'est-ce qui devient plus mouillé plus il sèche ?",ar:"ما الشيء الذي يزداد رطوبة كلما جفف أكثر؟"},h:{en:"You use it after a shower.",fr:"Tu l'utilises après la douche.",ar:"تستخدمه بعد الاستحمام."},a:{en:"A towel",fr:"Une serviette",ar:"المنشفة"}},
+  {q:{en:"I'm tall when young and short when old. What am I?",fr:"Je suis grand jeune et petit vieux. Qui suis-je ?",ar:"أنا طويل عندما أصغر وقصير عندما أكبر. فمن أنا؟"},h:{en:"I melt as I work.",fr:"Je fonds en travaillant.",ar:"أذوب أثناء عملي."},a:{en:"A candle",fr:"Une bougie",ar:"الشمعة"}},
+  {q:{en:"What has many teeth but cannot bite?",fr:"Qu'est-ce qui a beaucoup de dents mais ne mord pas ?",ar:"ما الشيء الذي له أسنان كثيرة لكنه لا يعض؟"},h:{en:"You run it through your hair.",fr:"Tu le passes dans tes cheveux.",ar:"تمرّره في شعرك."},a:{en:"A comb",fr:"Un peigne",ar:"المشط"}},
+  {q:{en:"What has words but never speaks?",fr:"Qu'est-ce qui a des mots mais ne parle jamais ?",ar:"ما الشيء الذي به كلمات لكنه لا يتحدث؟"},h:{en:"You open it to read.",fr:"Tu l'ouvres pour lire.",ar:"تفتحه لتقرأ."},a:{en:"A book",fr:"Un livre",ar:"الكتاب"}},
+  {q:{en:"What has a thumb and four fingers but isn't alive?",fr:"Qu'est-ce qui a un pouce et quatre doigts sans être vivant ?",ar:"ما الشيء الذي له إبهام وأربع أصابع لكنه ليس حيًا؟"},h:{en:"You put it on your hand.",fr:"Tu le mets sur ta main.",ar:"تلبسه على يدك."},a:{en:"A glove",fr:"Un gant",ar:"القفاز"}},
+  {q:{en:"What is always in front of you but cannot be seen?",fr:"Qu'est-ce qui est toujours devant toi mais invisible ?",ar:"ما الشيء الذي أمامك دائمًا لكنك لا تراه؟"},h:{en:"It comes after this moment.",fr:"Il vient après cet instant.",ar:"يأتي بعد هذه اللحظة."},a:{en:"The future",fr:"L'avenir",ar:"المستقبل"}},
+  {q:{en:"What has one eye but cannot see?",fr:"Qu'est-ce qui a un œil mais ne peut pas voir ?",ar:"ما الشيء الذي له عين واحدة لكنه لا يرى؟"},h:{en:"You pull thread through it.",fr:"On y passe du fil.",ar:"تمر الخيط من خلاله."},a:{en:"A needle",fr:"Une aiguille",ar:"الإبرة"}},
+  {q:{en:"What belongs to you but others use it more?",fr:"Qu'est-ce qui t'appartient mais que les autres utilisent plus ?",ar:"ما الشيء الذي يخصك لكن الآخرون يستخدمونه أكثر؟"},h:{en:"People say it to get your attention.",fr:"On le dit pour t'attirer l'attention.",ar:"يقولونه لجذب انتباهك."},a:{en:"Your name",fr:"Ton nom",ar:"اسمك"}},
+  {q:{en:"The more you take, the more you leave behind. What?",fr:"Plus tu en prends, plus tu en laisses derrière toi. Quoi ?",ar:"كلما أخذت أكثر، تركت أكثر خلفك. فما هي؟"},h:{en:"You make them when you walk.",fr:"Tu en fais en marchant.",ar:"تصنعها عندما تمشي."},a:{en:"Footsteps",fr:"Des pas",ar:"الخطوات"}},
+  {q:{en:"What has a head, a foot, and four legs?",fr:"Qu'est-ce qui a une tête, un pied et quatre pieds ?",ar:"ما الشيء الذي له رأس ورجل وأربع أرجل؟"},h:{en:"You sleep on it.",fr:"Tu dors dessus.",ar:"تنام عليه."},a:{en:"A bed",fr:"Un lit",ar:"السرير"}},
+  {q:{en:"What has a neck but no head?",fr:"Qu'est-ce qui a un cou mais pas de tête ?",ar:"ما الشيء الذي له عنق لكنه بلا رأس؟"},h:{en:"You put a cap on it.",fr:"On met un bouchon dessus.",ar:"يُوضع عليه غطاء."},a:{en:"A bottle",fr:"Une bouteille",ar:"الزجاجة"}},
+  {q:{en:"What is full of holes but still holds water?",fr:"Qu'est-ce qui est plein de trous mais retient l'eau ?",ar:"ما الشيء المليء بالثقوب لكنه يمسك الماء؟"},h:{en:"You wash dishes with it.",fr:"Tu laves la vaisselle avec.",ar:"تغسل به الأطباق."},a:{en:"A sponge",fr:"Une éponge",ar:"الإسفنجة"}},
+  {q:{en:"What goes up but never comes down?",fr:"Qu'est-ce qui monte mais ne redescend jamais ?",ar:"ما الشيء الذي يرتفع لكنه لا ينخفض أبدًا؟"},h:{en:"It increases every birthday.",fr:"Ça augmente à chaque anniversaire.",ar:"يزيد في كل عيد ميلاد."},a:{en:"Your age",fr:"Ton âge",ar:"عمرك"}},
+  {q:{en:"What has a ring but no finger?",fr:"Qu'est-ce qui a une bague mais pas de doigt ?",ar:"ما الشيء الذي له رنة لكنه بلا إصبع؟"},h:{en:"It rings when someone calls.",fr:"Ça sonne quand on appelle.",ar:"يرن عندما يتصل بك أحد."},a:{en:"A telephone",fr:"Un téléphone",ar:"الهاتف"}},
+  {q:{en:"What travels the world while staying in a corner?",fr:"Qu'est-ce qui fait le tour du monde en restant dans un coin ?",ar:"ما الشيء الذي يسافر حول العالم وهو في زاوية؟"},h:{en:"You stick it on an envelope.",fr:"Tu le colles sur une enveloppe.",ar:"تلصقه على الظرف."},a:{en:"A stamp",fr:"Un timbre",ar:"الطابع البريدي"}},
+  {q:{en:"What has a bed but never sleeps, a mouth but never eats?",fr:"Qu'est-ce qui a un lit mais ne dort jamais, une bouche mais ne mange pas ?",ar:"ما الشيء الذي له ضفة لكنه لا ينام، وفم لكنه لا يأكل؟"},h:{en:"It flows to the sea.",fr:"Ça coule vers la mer.",ar:"يجري نحو البحر."},a:{en:"A river",fr:"Une rivière",ar:"النهر"}},
+  {q:{en:"I'm lighter than air but a hundred people can't lift me. What?",fr:"Je suis plus léger que l'air mais cent personnes ne peuvent me soulever. Quoi ?",ar:"أنا أخف من الهواء لكن مئة شخص لا يستطيعون رفعي. فما أنا؟"},h:{en:"You blow it.",fr:"Tu souffles dessus.",ar:"تنفخ فيه."},a:{en:"A bubble",fr:"Une bulle",ar:"الفقاعة"}},
+  {q:{en:"What gets bigger the more you take away?",fr:"Qu'est-ce qui devient plus grand plus tu en retires ?",ar:"ما الشيء الذي يكبر كلما أخذت منه أكثر؟"},h:{en:"You dig it.",fr:"Tu le creuses.",ar:"تحفره."},a:{en:"A hole",fr:"Un trou",ar:"الحفرة"}},
+  {q:{en:"What has four legs but cannot walk?",fr:"Qu'est-ce qui a quatre pattes mais ne peut pas marcher ?",ar:"ما الشيء الذي له أربع أرجل لكنه لا يمشي؟"},h:{en:"You sit on it.",fr:"Tu t'assois dessus.",ar:"تجلس عليه."},a:{en:"A chair",fr:"Une chaise",ar:"الكرسي"}},
+  {q:{en:"I have cities but no houses, water but no fish. What am I?",fr:"J'ai des villes mais pas de maisons, de l'eau mais pas de poissons. Qui suis-je ?",ar:"لي مدن لكن بلا منازل، وماء لكن بلا أسماك. فمن أنا؟"},h:{en:"You look at it to find places.",fr:"Tu la regardes pour trouver des lieux.",ar:"تنظر إليه لتجد الأماكن."},a:{en:"A map",fr:"Une carte",ar:"الخريطة"}},
+  {q:{en:"What can you break without ever touching it?",fr:"Que peux-tu casser sans jamais le toucher ?",ar:"ما الشيء الذي يمكنك كسره دون أن تلمسه؟"},h:{en:"You make it when you promise something.",fr:"Tu le fais en promettant quelque chose.",ar:"تجعله عندما تعد بشيء."},a:{en:"A promise",fr:"Une promesse",ar:"الوعد"}},
+  {q:{en:"What has no beginning, end, or middle?",fr:"Qu'est-ce qui n'a ni début, ni fin, ni milieu ?",ar:"ما الشيء الذي لا بداية له ولا نهاية ولا وسط؟"},h:{en:"It is a round shape.",fr:"C'est une forme ronde.",ar:"شكل دائري."},a:{en:"A circle",fr:"Un cercle",ar:"الدائرة"}},
+  {q:{en:"What disappears as soon as you say its name?",fr:"Qu'est-ce qui disparaît dès qu'on prononce son nom ?",ar:"ما الشيء الذي يختفي بمجرد أن تنطق اسمه؟"},h:{en:"When you speak, it is gone.",fr:"Quand tu parles, il disparaît.",ar:"عندما تتحدث، يزول."},a:{en:"Silence",fr:"Le silence",ar:"الصمت"}},
+  {q:{en:"What has 13 hearts but no other organs?",fr:"Qu'est-ce qui a 13 cœurs mais pas d'autres organes ?",ar:"ما الشيء الذي له 13 قلبًا لكنه بلا أعضاء أخرى؟"},h:{en:"You play games with it.",fr:"Tu joues avec.",ar:"تلعب به."},a:{en:"A deck of cards",fr:"Un jeu de cartes",ar:"ورقة اللعب"}},
+  {q:{en:"The more there is of this, the less you see. What?",fr:"Plus il y en a, moins tu vois. Quoi ?",ar:"كلما زاد، قل ما تراه. فما هو؟"},h:{en:"It comes when the lights go out.",fr:"Ça vient quand les lumières s'éteignent.",ar:"يأتي عندما تنطفئ الأضواء."},a:{en:"Darkness",fr:"L'obscurité",ar:"الظلام"}},
+  {q:{en:"What has a bottom at the top?",fr:"Qu'est-ce qui a un fond en haut ?",ar:"ما الشيء الذي لديه قاع في الأعلى؟"},h:{en:"You have two of them below your waist.",fr:"Tu en as deux sous la taille.",ar:"لديك اثنان منه تحت خصرك."},a:{en:"Your legs",fr:"Tes jambes",ar:"ساقاك"}},
+  {q:{en:"What can fill a room but takes up no space?",fr:"Qu'est-ce qui peut remplir une pièce sans prendre de place ?",ar:"ما الشيء الذي يملأ الغرفة لكنه لا يشغل حيزًا؟"},h:{en:"You can turn it on or off.",fr:"Tu peux l'allumer ou l'éteindre.",ar:"يمكنك تشغيله وإطفاؤه."},a:{en:"Light",fr:"La lumière",ar:"الضوء"}}
+];
+
+var LS = {
+  get:function(k){ try{ return JSON.parse(localStorage.getItem("cc_"+k)); }catch(e){ return null; } },
+  set:function(k,v){ try{ localStorage.setItem("cc_"+k, JSON.stringify(v)); }catch(e){} }
+};
+var S = {
+  lang: LS.get("lang") || (navigator.language && navigator.language.indexOf("ar")===0 ? "ar" : navigator.language && navigator.language.indexOf("fr")===0 ? "fr" : "en"),
+  mode:null, level: LS.get("level")||0, deck:[], idx:0, answered:0, streak:0, bestStreak:0,
+  totalAnswered: LS.get("total")||0, best: LS.get("best")||0,
+  favs: LS.get("favs")||{}, votes: LS.get("votes")||{},
+  current:null, voted:false, hintShown:false, flipped:false
+};
+function applyLang(){
+  document.documentElement.lang = S.lang;
+  document.documentElement.dir = S.lang==="ar" ? "rtl" : "ltr";
+}
+function $(id){ return document.getElementById(id); }
+function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var tmp=a[i]; a[i]=a[j]; a[j]=tmp; } return a; }
+function hashStr(s){ var h=0; for(var i=0;i<s.length;i++){ h=((h<<5)-h+s.charCodeAt(i))|0; } return Math.abs(h); }
+function L(o){ return (o && o[S.lang]) || (o && o.en) || ""; }
+function toast(msg){ var t=$("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(t._tm); t._tm=setTimeout(function(){ t.classList.remove("show"); },1800); }
+function showScreen(id){ ["screen-home","screen-game"].forEach(function(s){ $(s).classList.toggle("hidden", s!==id); }); }
+
+function renderHome(){
+  $("tagline").textContent = t("tagline");
+  $("lblClean").textContent = t("clean");
+  $("lblParty").textContent = t("party");
+  $("lblWYR").textContent = t("wyr");
+  $("lblTD").textContent = t("td");
+  $("lblRID").textContent = t("rid");
+  $("lblSurprise").textContent = t("surprise");
+  $("lblSaved").textContent = t("saved");
+  $("lblAnswered").textContent = t("answered");
+  $("lblBest").textContent = t("best");
+  $("cnt-wyr").textContent = WYR.length + " " + t("questions");
+  $("cnt-td").textContent = (TRUTH.length + DARE.length) + " " + t("prompts");
+  $("cnt-rid").textContent = RIDDLES.length + " " + t("riddles");
+  $("statAnswered").textContent = S.totalAnswered;
+  $("statBest").textContent = S.best;
+  $("favCount").textContent = Object.keys(S.favs).length;
+  $("btnSavedClose").textContent = t("close");
+  $("btnSumHome").textContent = t("backHome");
+  document.querySelectorAll("#langToggle button").forEach(function(b){ b.classList.toggle("on", b.dataset.lang===S.lang); });
+  document.querySelectorAll("#levelToggle button").forEach(function(b){ b.classList.toggle("on", parseInt(b.dataset.level,10)===S.level); });
+}
+document.querySelectorAll("#langToggle button").forEach(function(b){
+  b.addEventListener("click", function(){ S.lang = b.dataset.lang; LS.set("lang", S.lang); applyLang(); renderHome(); });
+});
+document.querySelectorAll("#levelToggle button").forEach(function(b){
+  b.addEventListener("click", function(){ S.level = parseInt(b.dataset.level,10); LS.set("level", S.level); renderHome(); });
+});
+document.querySelectorAll(".mode-card").forEach(function(c){ c.addEventListener("click", function(){ startMode(c.dataset.mode); }); });
+$("btnSurprise").addEventListener("click", function(){ var m=["wyr","td","rid"]; startMode(m[Math.floor(Math.random()*3)]); });
+$("btnSaved").addEventListener("click", function(){ renderSaved(); $("overlay-saved").classList.remove("hidden"); });
+$("btnSavedClose").addEventListener("click", function(){ $("overlay-saved").classList.add("hidden"); });
+
+function startMode(mode){
+  S.mode = mode; S.answered = 0; S.streak = 0; S.idx = 0; S.bestStreak = 0;
+  if(mode==="wyr"){ S.deck = shuffle(WYR.slice()); $("modeTitle").textContent=t("wyr"); $("modeKicker").textContent=t("pickSide"); }
+  if(mode==="td"){
+    S.deck = { truth: shuffle(TRUTH.filter(function(x){return x.l<=S.level;}).slice()), dare: shuffle(DARE.filter(function(x){return x.l<=S.level;}).slice()) };
+    $("modeTitle").textContent=t("td"); $("modeKicker").textContent=t("chooseChallenge");
+  }
+  if(mode==="rid"){ S.deck = shuffle(RIDDLES.slice()); $("modeTitle").textContent=t("rid"); $("modeKicker").textContent=t("canYouSolve"); }
+  showScreen("screen-game");
+  nextCard();
+}
+function nextCard(){
+  S.voted=false; S.hintShown=false; S.flipped=false;
+  if(S.mode==="wyr"){ if(S.idx>=S.deck.length){ S.deck=shuffle(WYR.slice()); S.idx=0; } S.current=S.deck[S.idx++]; }
+  if(S.mode==="rid"){ if(S.idx>=S.deck.length){ S.deck=shuffle(RIDDLES.slice()); S.idx=0; } S.current=S.deck[S.idx++]; }
+  renderGame();
+}
+function renderGame(){
+  $("counter").textContent = S.answered + 1;
+  updateFavBtn();
+  var body=$("gameBody"), actions=$("gameActions");
+  body.innerHTML=""; actions.innerHTML="";
+  if(S.mode==="wyr") renderWYR(body, actions);
+  if(S.mode==="td") renderTD(body, actions);
+  if(S.mode==="rid") renderRid(body, actions);
+}
+function nextArrow(){ return '<svg class="mirror" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>'; }
+
+function renderWYR(body, actions){
+  var q=S.current, id="w"+hashStr(q.en[0]+q.en[1]);
+  var wrap=document.createElement("div"); wrap.className="wyr-wrap";
+  wrap.innerHTML='<div class="wyr-q">'+t("wyrQ")+'</div>'+
+    '<div class="wyr-opts">'+
+      '<button class="wyr-opt a" data-opt="a"><div class="bar"></div><span class="txt"></span><span class="pct"></span></button>'+
+      '<div class="or-badge">'+t("or")+'</div>'+
+      '<button class="wyr-opt b" data-opt="b"><div class="bar"></div><span class="txt"></span><span class="pct"></span></button>'+
+    '</div>';
+  var opts=wrap.querySelectorAll(".wyr-opt");
+  opts[0].querySelector(".txt").textContent=L(q)[0];
+  opts[1].querySelector(".txt").textContent=L(q)[1];
+  body.appendChild(wrap);
+  var nextBtn=document.createElement("button"); nextBtn.className="btn primary"; nextBtn.disabled=true;
+  nextBtn.innerHTML=t("next")+" "+nextArrow();
+  actions.appendChild(nextBtn);
+  function vote(opt){
+    if(S.voted) return; S.voted=true; S.answered++; S.streak++;
+    if(S.streak>S.bestStreak) S.bestStreak=S.streak;
+    S.totalAnswered++; LS.set("total", S.totalAnswered);
+    if(!S.votes[id]) S.votes[id]={a:0,b:0};
+    S.votes[id][opt]++; LS.set("votes", S.votes);
+    var h=hashStr(id), baseA=40+(h%160), baseB=40+((h>>3)%160);
+    var ta=baseA+S.votes[id].a, tb=baseB+S.votes[id].b, tot=ta+tb;
+    var pa=Math.round(ta/tot*100), pb=100-pa;
+    opts.forEach(function(o){ o.classList.add("voted"); o.style.cursor="default"; });
+    opts[0].querySelector(".pct").textContent=pa+"%";
+    opts[1].querySelector(".pct").textContent=pb+"%";
+    requestAnimationFrame(function(){
+      opts[0].querySelector(".bar").style.width=pa+"%";
+      opts[1].querySelector(".bar").style.width=pb+"%";
+    });
+    nextBtn.disabled=false;
+  }
+  opts[0].addEventListener("click", function(){ vote("a"); });
+  opts[1].addEventListener("click", function(){ vote("b"); });
+  nextBtn.addEventListener("click", function(){ maybeShowInterstitial(); nextCard(); });
+}
+
+function renderTD(body, actions){
+  var btns=document.createElement("div"); btns.className="td-buttons";
+  btns.innerHTML='<button class="truth">'+t("truth")+'</button><button class="dare">'+t("dare")+'</button>';
+  body.appendChild(btns);
+  var card=document.createElement("div"); card.className="flip-card";
+  card.innerHTML='<div class="flip-inner">'+
+    '<div class="flip-face front"><div class="placeholder">'+t("tdPlaceholder")+'</div></div>'+
+    '<div class="flip-face back"><span class="tag" id="tdTag">'+t("truth")+'</span><div class="content" id="tdContent"></div></div>'+
+  '</div>';
+  body.appendChild(card);
+  var doneBtn=document.createElement("button"); doneBtn.className="btn primary"; doneBtn.disabled=true;
+  doneBtn.innerHTML=t("doneNext")+" "+nextArrow();
+  actions.appendChild(doneBtn);
+  function pick(kind){
+    var arr = kind==="t" ? S.deck.truth : S.deck.dare;
+    if(arr.length===0){
+      arr = kind==="t" ? shuffle(TRUTH.filter(function(x){return x.l<=S.level;}).slice()) : shuffle(DARE.filter(function(x){return x.l<=S.level;}).slice());
+      if(kind==="t") S.deck.truth=arr; else S.deck.dare=arr;
+    }
+    var item = arr.pop();
+    S.current = item; S.answered++; S.streak++;
+    if(S.streak>S.bestStreak) S.bestStreak=S.streak;
+    S.totalAnswered++; LS.set("total", S.totalAnswered);
+    $("tdTag").textContent = kind==="t" ? t("truth") : t("dare");
+    $("tdTag").className = "tag " + (kind==="t"?"t":"d");
+    $("tdContent").textContent = L(item);
+    card.classList.add("flipped");
+    doneBtn.disabled=false;
+    $("counter").textContent = S.answered + 1;
+    updateFavBtn();
+  }
+  btns.querySelector(".truth").addEventListener("click", function(){ pick("t"); });
+  btns.querySelector(".dare").addEventListener("click", function(){ pick("d"); });
+  doneBtn.addEventListener("click", function(){
+    maybeShowInterstitial();
+    card.classList.remove("flipped");
+    doneBtn.disabled=true;
+    $("counter").textContent = S.answered + 1;
+    updateFavBtn();
+  });
+}
+
+function renderRid(body, actions){
+  var r=S.current;
+  var card=document.createElement("div"); card.className="flip-card";
+  card.innerHTML='<div class="flip-inner">'+
+    '<div class="flip-face front"><span class="tag r">'+t("riddle")+'</span><div class="content" id="ridQ"></div><div class="hint" id="ridHint" style="display:none"></div></div>'+
+    '<div class="flip-face back"><span class="tag r">'+t("answer")+'</span><div class="answer" id="ridA"></div></div>'+
+  '</div>';
+  body.appendChild(card);
+  $("ridQ").textContent = L(r.q);
+  var hintBtn=document.createElement("button"); hintBtn.className="btn secondary";
+  hintBtn.innerHTML='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1V17h6v-.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2Z"/></svg> '+t("hint");
+  var revealBtn=document.createElement("button"); revealBtn.className="btn primary"; revealBtn.textContent=t("reveal");
+  var nextBtn=document.createElement("button"); nextBtn.className="btn primary";
+  nextBtn.innerHTML=t("next")+" "+nextArrow();
+  actions.appendChild(hintBtn); actions.appendChild(revealBtn);
+  hintBtn.addEventListener("click", function(){
+    showRewarded(function(){
+      $("ridHint").style.display="block";
+      $("ridHint").textContent = t("hint")+": "+L(r.h);
+      hintBtn.disabled=true; hintBtn.textContent=t("hintShown");
+    });
+  });
+  revealBtn.addEventListener("click", function(){
+    if(!S.flipped){ S.flipped=true; S.answered++; S.streak++; if(S.streak>S.bestStreak) S.bestStreak=S.streak; S.totalAnswered++; LS.set("total", S.totalAnswered); }
+    $("ridA").textContent = L(r.a);
+    card.classList.add("flipped");
+    revealBtn.style.display="none"; hintBtn.style.display="none";
+    actions.appendChild(nextBtn);
+    $("counter").textContent = S.answered + 1;
+    updateFavBtn();
+  });
+  nextBtn.addEventListener("click", function(){ maybeShowInterstitial(); nextCard(); });
+}
+
+function currentKey(){
+  if(!S.current) return null;
+  if(S.mode==="wyr") return "w"+hashStr(S.current.en[0]+S.current.en[1]);
+  if(S.mode==="td") return "t"+hashStr(S.current.en);
+  if(S.mode==="rid") return "r"+hashStr(S.current.q.en);
+  return null;
+}
+function currentText(){
+  if(!S.current) return "";
+  if(S.mode==="wyr"){ var o=L(S.current); return t("wyr")+": "+o[0]+" / "+o[1]; }
+  if(S.mode==="td") return t("td")+": "+L(S.current);
+  if(S.mode==="rid") return L(S.current.q)+" — "+L(S.current.a);
+  return "";
+}
+function updateFavBtn(){ var k=currentKey(); $("btnFav").classList.toggle("on", !!(k && S.favs[k])); }
+$("btnFav").addEventListener("click", function(){
+  var k=currentKey(); if(!k) return;
+  if(S.favs[k]){ delete S.favs[k]; toast(t("removedToast")); }
+  else { S.favs[k]={mode:S.mode, text:currentText()}; toast(t("savedToast")); }
+  LS.set("favs", S.favs);
+  $("favCount").textContent = Object.keys(S.favs).length;
+  updateFavBtn();
+});
+function renderSaved(){
+  $("savedTitle").textContent=t("savedTitle"); $("savedSub").textContent=t("savedSub");
+  var list=$("savedList"); list.innerHTML="";
+  var keys=Object.keys(S.favs);
+  if(keys.length===0){ list.innerHTML='<div class="empty">'+t("savedEmpty")+'</div>'; return; }
+  keys.forEach(function(k){
+    var f=S.favs[k];
+    var row=document.createElement("div"); row.className="saved-item";
+    var badge=document.createElement("span"); badge.className="badge "+(f.mode==="wyr"?"wyr":f.mode==="td"?"td":"rid");
+    badge.textContent = f.mode==="wyr"?"WYR":f.mode==="td"?"T/D":"?";
+    var p=document.createElement("p"); p.textContent=f.text;
+    var del=document.createElement("button"); del.className="del"; del.innerHTML='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
+    del.addEventListener("click", function(){ delete S.favs[k]; LS.set("favs", S.favs); $("favCount").textContent=Object.keys(S.favs).length; renderSaved(); });
+    row.appendChild(badge); row.appendChild(p); row.appendChild(del);
+    list.appendChild(row);
+  });
+}
+
+$("btnShare").addEventListener("click", function(){
+  var text = currentText() + "\n\n— Choice Clash";
+  if(navigator.share){ navigator.share({text:text}).catch(function(){}); }
+  else {
+    var ta=document.createElement("textarea"); ta.value=text; document.body.appendChild(ta); ta.select();
+    try{ document.execCommand("copy"); toast(t("copied")); }catch(e){ toast(t("copyFailed")); }
+    document.body.removeChild(ta);
+  }
+});
+$("btnHome").addEventListener("click", function(){ endSession(false); });
+$("btnDone").addEventListener("click", function(){ endSession(true); });
+function endSession(showSummary){
+  if(S.bestStreak > S.best){ S.best = S.bestStreak; LS.set("best", S.best); }
+  if(showSummary && S.mode){
+    $("sumTitle").textContent=t("sessionComplete");
+    $("sumSub").textContent=t("sessionSub");
+    $("sumL1").textContent=t("lAnswered"); $("sumL2").textContent=t("lStreak"); $("sumL3").textContent=t("lSaved");
+    $("lblAgain").textContent=t("playAgain");
+    $("sumAnswered").textContent=S.answered; $("sumStreak").textContent=S.bestStreak; $("sumSaved").textContent=Object.keys(S.favs).length;
+    $("overlay-summary").classList.remove("hidden");
+  } else {
+    showScreen("screen-home"); renderHome();
+  }
+}
+$("btnAgain").addEventListener("click", function(){ $("overlay-summary").classList.add("hidden"); startMode(S.mode); });
+$("btnSumHome").addEventListener("click", function(){ $("overlay-summary").classList.add("hidden"); showScreen("screen-home"); renderHome(); });
+
+applyLang();
+renderHome();
+showScreen("screen-home");
+})();
+</script>
+</body>
+</html>
